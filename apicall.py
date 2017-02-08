@@ -6,7 +6,7 @@ name = arg
 
 m = hashlib.md5()
 pub = "a86a6cb4e0255630ae1eae723b451328"
-priv = "fae88800e9cd608f2dcf1eda19e58e93514aad78"
+priv = ""
 t = time.time()
 m.update((str(t)+priv + pub).encode('utf-8'))
 hashed = m.hexdigest()
