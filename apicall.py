@@ -17,3 +17,7 @@ if req.json()["code"] == 200:
     desc = req.json()["data"]["results"][0]["description"]
 else:
     print("sorry, idiot")
+
+# images get request
+img = requests.get(req.json()['data']['results'][0]['thumbnail']['path'] + 
+    'detail' + req.json()['data']['results'][0]['thumbnail']['extension'])
