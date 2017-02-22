@@ -7,13 +7,14 @@ import os
 DATA_DIR = os.path.dirname(__file__)
 DATABASE_FILENAME = os.path.join(DATA_DIR, 'fivethirtyeight_marvel.db')
 
-d1 = {'name': ['name', 'id', 'align', 'eye', 'hair', 'sex', 'alive',
+d1 = {'name': ['name', 'id', 'align', 'eye', 'hair', 'sex', 'gsm', 'alive',
                'appearances', 'first_appearance', 'year'],
       'id': ['name', 'id'],
       'align': ['name', 'align'],
       'eye': ['name', 'eye'],
       'hair': ['name', 'hair'],
       'sex': ['name', 'sex'],
+      'gsm': ['name', 'gsm'],
       'alive': ['name', 'alive'],
       'appearances': ['name', 'appearances'],
       'first_appearance': ['name', 'first_appearance'],
@@ -25,10 +26,11 @@ d2 = {'name': (1, 'name'),
       'eye': (4, 'eye'),
       'hair': (5, 'hair'),
       'sex': (6, 'sex'),
-      'alive': (7, 'alive'),
-      'appearances': (8, 'appearances'),
-      'first_appearance': (9, 'first_appearance'),
-      'year': (10, 'year')}
+      'gsm': (7, 'gsm'),
+      'alive': (8, 'alive'),
+      'appearances': (9, 'appearances'),
+      'first_appearance': (10, 'first_appearance'),
+      'year': (11, 'year')}
 
 def determine_attributes(args_from_ui):
     '''
