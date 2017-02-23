@@ -12,3 +12,10 @@ if soup.find_all('a', class_='mw-redirect', title=arg) == 0:
         'th', text='Alter ego')[0].next_sibling.next_sibling.text
 else:
     alter_ego = ths[0].text
+
+#Finding dopplegangers, probably belongs in another file
+df = pd.read_csv('./fivethirtyeight_marvel.csv')
+df2 = pd.read_csv('./marvel_sans_earth.csv')
+joined = pd.concat([df, df2['name_no_earth']], axis=1)
+test = joined['name_no_earth'].str.extract(
+    r'^([^\(]*)(?: \((.*)\))*$', expand=True)
