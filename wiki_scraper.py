@@ -6,6 +6,7 @@ import requests
 r = requests.get('http://en.wikipedia.org/wiki/%s' % (arg))
 soup = bs4.BeautifulSoup(r.text)
 ths = soup.find_all('th')
+
 ab_lis = [th.next_sibling.next_sibling.find_all('li') for th in ths if th.text == 'Abilities']
 if ab_lis != []:
     abilities_list = [li.text for li in ab_lis[0]]
@@ -39,6 +40,16 @@ if cr_as != []:
     creator_list = [a.text for a in cr_as[0]]
 else:
     creator_list = ['No creator information available']
+
+partnership_list = ['No partnership information available']
+for th in ths[:20]:
+    if th.text == 'Partnerships':
+        partnership_list = [a.text for a in th.next_sibling.next_sibling.find_all('a')]
+
+aliases_list = ['No alias information available']
+for th in ths[:20]:
+    if th.text == 'Notable aliases':
+        aliases_list = [li.text[:-3] for li in th.next_sibling.next_sibling.find_all('li')]
 
 if soup.find_all('a', class_='mw-redirect', title=arg) == 0:
     alter_ego = soup.find_all(
