@@ -26,7 +26,7 @@ COLUMN_NAMES = dict(
         SEX='Sex',
         ALIVE='Alive',
         APPEARANCES='Appearances',
-        FIRST_APPEARANCES='First Appearances',
+        FIRST_APPEARANCE='First_appearance',
         YEAR='Year'
 )
 
