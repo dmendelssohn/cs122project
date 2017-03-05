@@ -59,15 +59,19 @@ def where(args_from_ui):
   '''
   Takes search terms and returns WHERE clause in SQL query and parameters
 
-  e.g. WHERE word IN (?, ?), param = ['economics', 'physical']
+  e.g. WHERE name = ?, param = ['Spider-Man (Peter-Parker)']
   '''
   params = []
   s = ' WHERE '
   for arg in args_from_ui:
     if s != ' WHERE ':
       s += ' AND '
-    s += arg + ' = ?'
-    params.append(args_from_ui[arg])
+    if arg == 'name':
+      s += arg + ' = ? OR hero_name = ? OR alias = ?' 
+      params += [args_from_ui[arg]] * 3
+    else:
+      s += arg + ' = ?'
+      params.append(args_from_ui[arg])
 
   return (s, params)
 
@@ -100,7 +104,7 @@ def find_attributes(args_from_ui):
     marvel character information that match the criteria.  The dictionary
     will contain some of the following fields:
 
-      - name (str) e.g. S'ider-Man (Peter Parker)
+      - name (str) e.g. Spider-Man (Peter Parker)
       -'id (str) e.g. 'Secret'identity' or 'Public'identity'
       - align (str) e.g 'Good Characters' or 'Neutral Characters'
       - eye (str) e.g. 'Hazel eyes'
