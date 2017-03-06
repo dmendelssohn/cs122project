@@ -3,6 +3,7 @@ import requests
 import time
 from priv_key import priv
 import csv
+import textwrap
 
 def get_desc(name):
 #name = arg

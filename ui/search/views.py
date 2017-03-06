@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils import text 
 from django import forms
 import json
 import traceback
@@ -13,6 +14,7 @@ import csv
 import os
 from operator import and_
 from fivethirtyeight import find_attributes
+from apicall import get_desc
 from functools import reduce
 
 NOPREF_STR = 'No preference'
@@ -52,6 +54,11 @@ def home(request):
             args = {}
             if form.cleaned_data['query']:
                 args['name'] = form.cleaned_data['query']
+                context['desc'] = text.wrap(get_desc(form.cleaned_data['query']), width=190)
+
+            if form.cleaned_data['show_args']:
+                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+
             try:
                 res = find_attributes(args)
             except Exception as e:
