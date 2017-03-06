@@ -28,4 +28,4 @@ else:
 
 # images get request
 img = requests.get(req.json()['data']['results'][0]['thumbnail']['path'] + 
-    'detail' + req.json()['data']['results'][0]['thumbnail']['extension'])
+    '/detail.' + req.json()['data']['results'][0]['thumbnail']['extension'])
