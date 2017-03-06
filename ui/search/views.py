@@ -14,7 +14,8 @@ import csv
 import os
 from operator import and_
 from fivethirtyeight import find_attributes
-from apicall import get_desc
+from apicall import get_desc, get_img
+from PIL import Image
 from functools import reduce
 
 NOPREF_STR = 'No preference'
@@ -36,10 +37,10 @@ COLUMN_NAMES = dict(
 class SearchForm(forms.Form):
     query = forms.CharField(
             label='Character Name',
-            help_text='e.g. Spider-Man (Peter Parker)',
+            help_text='e.g. Spider-Man',
             required=False)
-    show_args = forms.BooleanField(label='Show args_to_ui',
-                                   required=False)
+    #show_args = forms.BooleanField(label='Show args_to_ui',
+    #                               required=False)
 
 
 def home(request):
@@ -55,9 +56,11 @@ def home(request):
             if form.cleaned_data['query']:
                 args['name'] = form.cleaned_data['query']
                 context['desc'] = text.wrap(get_desc(form.cleaned_data['query']), width=190)
+                image = get_img(form.cleaned_data['query'])
+                image.save('../static', 'JPEG')
 
-            if form.cleaned_data['show_args']:
-                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+            #if form.cleaned_data['show_args']:
+            #    context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
             try:
                 res = find_attributes(args)
