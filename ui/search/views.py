@@ -34,7 +34,17 @@ COLUMN_NAMES = dict(
 )
 
 
+def _build_dropdown(options):
+    """Converts a list to (value, caption) tuples"""
+    return [(x, x) if x is not None else ('', NOPREF_STR) for x in options]
+
+UNIVERSE = _build_dropdown(['Marvel', 'DC'])
+
 class SearchForm(forms.Form):
+    universe = forms.MultipleChoiceField(label='Comic Universe',
+                                         choices=UNIVERSE,
+                                         widget=forms.CheckboxSelectMultiple,
+                                         required=True)
     query = forms.CharField(
             label='Character Name',
             help_text='e.g. Spider-Man',
