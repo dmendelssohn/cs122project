@@ -56,8 +56,8 @@ def home(request):
             if form.cleaned_data['query']:
                 args['name'] = form.cleaned_data['query']
                 context['desc'] = text.wrap(get_desc(form.cleaned_data['query']), width=190)
-                image = get_img(form.cleaned_data['query'])
-                image.save('../static', 'JPEG')
+                #image = get_img(form.cleaned_data['query'])
+                #image.save('../static', 'JPEG')
 
             #if form.cleaned_data['show_args']:
             #    context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
