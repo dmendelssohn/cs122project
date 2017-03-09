@@ -18,15 +18,16 @@ def apicall(name):
     url = "https://gateway.marvel.com/v1/public/characters"
     req = requests.get(url,params=params)
     if req.json()["code"] == 200:
-        desc += req.json()["data"]["results"][0]["description"]
+        if len(req.json()["data"]["results"]) > 0:
+            desc += req.json()["data"]["results"][0]["description"]
 
-    img = requests.get(req.json()['data']['results'][0]['thumbnail']['path'] + 
-        '/detail.' + req.json()['data']['results'][0]['thumbnail']['extension'],
-        stream=True)
-    if img.status_code == 200:
-        with open('character_image.jpg', 'wb') as writer:
-            for piece in img:
-                writer.write(piece)
+            img = requests.get(req.json()['data']['results'][0]['thumbnail']['path'] + 
+                '/detail.' + req.json()['data']['results'][0]['thumbnail']['extension'],
+                stream=True)
+            if img.status_code == 200:
+                with open('character_image.jpg', 'wb') as writer:
+                    for piece in img:
+                        writer.write(piece)
 
     if desc == '':
         return 'Sorry, no character description available'
