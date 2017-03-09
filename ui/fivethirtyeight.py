@@ -1,36 +1,39 @@
 import sqlite3
 import json
 import os
+import apicall
 
 
 # Use this filename for the database
 DATA_DIR = os.path.dirname(__file__)
 DATABASE_FILENAME = os.path.join(DATA_DIR, 'fivethirtyeight_marvel.db')
 
-d1 = {'name': ['name', 'id', 'align', 'eye', 'hair', 'sex', 'gsm', 'alive',
-               'appearances', 'first_appearance', 'year'],
-      'id': ['name', 'id'],
-      'align': ['name', 'align'],
-      'eye': ['name', 'eye'],
-      'hair': ['name', 'hair'],
-      'sex': ['name', 'sex'],
-      'gsm': ['name', 'gsm'],
-      'alive': ['name', 'alive'],
-      'appearances': ['name', 'appearances'],
-      'first_appearance': ['name', 'first_appearance'],
-      'year': ['name', 'year']}
+d1 = {'name': ['hero_name', 'alias',
+      'ID', 'align', 'eye', 'hair', 'sex', 'gsm', 'alive',
+      'appearances', 'first_appearance', 'year'],
+      'ID': ['hero_name', 'alias', 'ID'],
+      'align': ['hero_name', 'alias', 'align'],
+      'eye': ['hero_name', 'alias', 'eye'],
+      'hair': ['hero_name', 'alias', 'hair'],
+      'sex': ['hero_name', 'alias', 'sex'],
+      'gsm': ['hero_name', 'alias', 'gsm'],
+      'alive': ['hero_name', 'alias', 'alive'],
+      'appearances': ['hero_name', 'alias', 'appearances'],
+      'first_appearance': ['hero_name', 'alias', 'first_appearance'],
+      'year': ['hero_name', 'alias', 'year']}
 
-d2 = {'name': (1, 'name'),
-      'id': (2, 'id'),
-      'align': (3, 'align'),
-      'eye': (4, 'eye'),
-      'hair': (5, 'hair'),
-      'sex': (6, 'sex'),
-      'gsm': (7, 'gsm'),
-      'alive': (8, 'alive'),
-      'appearances': (9, 'appearances'),
-      'first_appearance': (10, 'first_appearance'),
-      'year': (11, 'year')}
+d2 = {'hero_name': (1, 'hero_name'),
+      'alias': (2, 'alias'),
+      'ID': (3, 'ID'),
+      'align': (4, 'align'),
+      'eye': (5, 'eye'),
+      'hair': (6, 'hair'),
+      'sex': (7, 'sex'),
+      'gsm': (8, 'gsm'),
+      'alive': (9, 'alive'),
+      'appearances': (10, 'appearances'),
+      'first_appearance': (11, 'first_appearance'),
+      'year': (12, 'year')}
 
 def determine_attributes(args_from_ui):
     '''
@@ -67,8 +70,16 @@ def where(args_from_ui):
     if s != ' WHERE ':
       s += ' AND '
     if arg == 'name':
-      s += arg + ' = ? OR hero_name = ? OR alias = ?' 
+      s += '(' + arg + ' = ? COLLATE NOCASE OR hero_name = ? COLLATE NOCASE OR alias = ? COLLATE NOCASE)' 
       params += [args_from_ui[arg]] * 3
+    elif arg == 'ID':
+      s += arg + ' IN ('
+      for iden in args_from_ui[arg]:
+        s+= '?'
+        if iden != args_from_ui[arg][-1]:
+          s+= ', '
+        params.append(iden)
+      s+= ')'
     else:
       s += arg + ' = ?'
       params.append(args_from_ui[arg])
@@ -105,7 +116,7 @@ def find_attributes(args_from_ui):
     will contain some of the following fields:
 
       - name (str) e.g. Spider-Man (Peter Parker)
-      -'id (str) e.g. 'Secret'identity' or 'Public'identity'
+      -'ID (str) e.g. 'Secret'Identity' or 'Public'Identity'
       - align (str) e.g 'Good Characters' or 'Neutral Characters'
       - eye (str) e.g. 'Hazel eyes'
       - hair (str) e.g. 'Brown hair'
@@ -130,7 +141,9 @@ def find_attributes(args_from_ui):
     connection = sqlite3.connect(DATABASE_FILENAME)
     cursor = connection.cursor()
 
-    S = 'SELECT ' + attribute_string + ' FROM marvel' + where_clause + ' COLLATE NOCASE'
+    S = 'SELECT ' + attribute_string + ' FROM marvel' + where_clause + 'LIMIT 100'
+    print(S)
+    print(params)
     query = cursor.execute(S, params)     
 
     result = query.fetchall()

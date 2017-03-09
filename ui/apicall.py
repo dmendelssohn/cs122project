@@ -3,37 +3,35 @@ import requests
 import time
 from priv_key import priv
 import csv
+import os 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-#Not-working private key extraction from home directory
-m = hashlib.md5()
-pub = "a86a6cb4e0255630ae1eae723b451328"
-t = time.time()
-private_key = priv()
-m.update((str(t) + private_key + pub).encode('utf-8'))
-hashed = m.hexdigest()
-url = "https://gateway.marvel.com/v1/public/characters"
+def apicall(name):
 
-def get_desc(name):
-    '''
-    with open('../priv_key.csv', 'w') as keyfile:
-        keyreader = csv.reader(keyfile)
-        for row in keyreader:
-            priv = row
-    '''
+    m = hashlib.md5()
+    pub = "a86a6cb4e0255630ae1eae723b451328"
+
+    desc = ''
+    t = time.time()
+    m.update((str(t) + priv() + pub).encode('utf-8'))
+    hashed = m.hexdigest()
     params = {"hash":hashed,"apikey":pub,"ts":t,"name":name}
+    url = "https://gateway.marvel.com/v1/public/characters"
     req = requests.get(url,params=params)
-
-    if req.json()["code"] == 200:
-        desc = req.json()["data"]["results"][0]["description"]
-        return desc
+    if req.json()["code"] == 200 and req.json()["data"]["results"] != []:
+        desc += req.json()["data"]["results"][0]["description"]
+        img = requests.get(req.json()['data']['results'][0][
+            'thumbnail']['path'] + '/detail.' + req.json()[
+            'data']['results'][0]['thumbnail']['extension'],stream=True)
+        if img.status_code == 200:
+            with open(os.path.join(BASE_DIR,'ui/static/character.jpg'), 'wb') as writer:
+                for piece in img:
+                    writer.write(piece)        
     else:
-        desc = "No description found. Please try another character name."
-        return desc
-        #print("sorry, idiot")
+        desc = ''
 
-def get_img(name):
-    params = {"hash":hashed,"apikey":pub,"ts":t,"name":name}
-    req = requests.get(url,params=params)
-    img = requests.get(req.json()['data']['results'][0]['thumbnail']['path'] + 'detail' + req.json()['data']['results'][0]['thumbnail']['extension'])
-    return img
+    if desc == '':
+        return 'Sorry, no character description available', 0
+    else:
+        return desc, 1 

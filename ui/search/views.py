@@ -14,23 +14,25 @@ import csv
 import os
 from operator import and_
 from fivethirtyeight import find_attributes
-from apicall import get_desc, get_img
+from apicall import apicall 
 from PIL import Image
 from functools import reduce
+from wiki_scraper import scraper
 
 NOPREF_STR = 'No preference'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
 COLUMN_NAMES = dict(
-        name='Name',
+        hero_name='Hero Name',
+        alias = 'Alias',
         ID='ID',
-        ALIGN='Align',
-        EYE='Eye',
-        HAIR='Hair',
-        SEX='Sex',
-        ALIVE='Alive',
-        APPEARANCES='Appearances',
-        FIRST_APPEARANCE='First_appearance',
-        YEAR='Year'
+        align='Alignment',
+        eye='Eye Color',
+        hair='Hair Color',
+        sex='Sex',
+        alive='Alive/Dead',
+        appearances='No. of Appearances',
+        first_appearance='First Appearance',
+        year='Year'
 )
 
 
@@ -39,6 +41,7 @@ def _build_dropdown(options):
     return [(x, x) if x is not None else ('', NOPREF_STR) for x in options]
 
 UNIVERSE = _build_dropdown(['Marvel', 'DC'])
+IDENTITY = _build_dropdown(['Secret Identity', 'Public Identity'])
 
 class SearchForm(forms.Form):
     universe = forms.MultipleChoiceField(label='Comic Universe',
@@ -49,6 +52,17 @@ class SearchForm(forms.Form):
             label='Character Name',
             help_text='e.g. Spider-Man',
             required=False)
+    wiki = forms.TypedChoiceField(label='Request Wikipedia Information',
+                                  coerce=lambda x: x=='True',
+                                  choices=((False, 'No'), (True, 'Yes')),
+                                  required=False)
+    iden = forms.MultipleChoiceField(label='Identity',
+                                         choices=IDENTITY,
+                                         widget=forms.CheckboxSelectMultiple,
+                                         required=False)
+    eye = forms.CharField(label='Eye Color',
+                          help_text = 'e.g. Hazel',
+                          required=False)
     #show_args = forms.BooleanField(label='Show args_to_ui',
     #                               required=False)
 
@@ -64,8 +78,22 @@ def home(request):
             # Convert form data to an args dictionary for find_attributes
             args = {}
             if form.cleaned_data['query']:
-                args['name'] = form.cleaned_data['query']
-                context['desc'] = text.wrap(get_desc(form.cleaned_data['query']), width=190)
+                hero = form.cleaned_data['query']
+                args['name'] = hero #538 CSV Data
+                api_result = apicall(hero) #Marvel API Data
+                desc = api_result[0]
+                context['desc'] = text.wrap((desc), width=170)
+                if api_result[1] == 1:
+                    context['img'] = True
+            wiki_info = form.cleaned_data['wiki']
+            if wiki_info:
+                context['wiki'] = scraper(hero)
+            identity = form.cleaned_data['iden']
+            if identity:
+                args['ID'] = identity
+            eye_color = form.cleaned_data['eye']
+            if eye_color:
+                args['eye'] = eye_color + ' Eyes'
                 #image = get_img(form.cleaned_data['query'])
                 #image.save('../static', 'JPEG')
 
