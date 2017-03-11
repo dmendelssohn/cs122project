@@ -7,13 +7,23 @@
     </head>
     <body>
         <div id="header">
-            <h1>Marvel Character Attribute Search</h1>
+            <div align="center">
+            <h1>CS 122 Heroes Database</h1>
         </div>
+ 
         <div class="frame">
+            <div align="left">
             <form method="get">
                 {% csrf_token %}
                 <table class="form">
-                {{ form }}
+                <tr><td>{{form.universe.label}}:</td><td>{{form.universe}}</td></tr>
+                <tr><td>{{form.query.label}}:</td><td>{{form.query}}</td></tr>
+                <tr><td>{{form.wiki.label}}:</td><td>{{form.wiki}}</td></tr>
+                <tr><td>{{form.show_attributes.label}}:</td><td>{{form.show_attributes}}
+                {% if attributes %}
+                <tr><td>{{form.appearance.label}}:</td><td>{{form.appearance}}</td></tr>
+                <tr><td>{{form.gsm.label}}:</td><td>{{form.gsm}}</td></tr>
+                {% endif%}
                 </table>
                 <input type="submit" value="Submit" />
             </form>
@@ -27,7 +37,7 @@
 
         {% if desc %}
         <div class="desc">
-            <h2>Description</h2>            
+            <h2>{{ desc_title}}</h2>            
             <pre>{{ desc }}</pre>
         </div>
         {% endif %}
@@ -35,7 +45,6 @@
         {% if img %}
         <div class='img'>
             {% load static %}
-            <h2>Image</h2> 
             <img src="{% static "character.jpg" %}"/>            
         </div>
         {% endif %}
@@ -70,19 +79,19 @@
 
 
         <div class="frame">
-            {% if result != None %}
+            {% if result %}
             <h2>All Possible Matches</h2>
             <div class="results">
                 <table class="Fields">
                     <tr>
                         {% for col in columns %}
-                        <th>{{ col }}</th>
+                        <th align='left'>{{ col }}</th>
                         {% endfor %}
                     </tr>
                     {% for entry in result %}
                     <tr>
                         {% for col in entry %}
-                        <td>{{ col }}</td>
+                        <td align='left'>{{ col }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
