@@ -1,16 +1,19 @@
 import pandas as pd
 import csv
+import re
+import networkx as nx
 
 def clean(string):
-    string = string.replace(' |','')
     string = string.strip()
     singlename = re.findall(r'^[^/]+',string)[0]
-    fullname = re.findall(r'^([^,]+)(?:[\,][ ])*(.*)',singlename)[0]
+    fullname = re.findall(r'^([^,]+)(?:[\,][ ])*([^|]*)[|]*[ ]*(.*)',singlename)[0]
     if len(fullname[1]) > 0:
-        name = fullname[1] + ' ' + fullname[0]
+        name = fullname[1].strip() + ' ' + fullname[0].strip() + ' ' + fullname[2].strip()
     else:
-        name = fullname[0]
-    return name
+        name = fullname[0].strip() + ' ' + fullname[2].strip()
+    name = name.replace('|','')
+    nameclean = ' '.join(name.split())
+    return "'" + '"' + nameclean + '"' + "'"
 
 dfraw = pd.read_csv("hero-network.csv",header=None)
 leftname = dfraw[0].apply(lambda row: clean(row))
@@ -34,5 +37,15 @@ edgehead = pd.DataFrame({0:"*arcs",1:len(edges)},index=[0])
 verts.columns = [0,1]
 final = pd.concat([verthead,verts,edgehead,edges])
 final = final.reset_index(drop=True)
-final.to_csv(r'clean_hero_network.txt', header=None, index=None, sep=' ', quoting = csv.QUOTE_NONNUMERIC)
+final.to_csv(r'clean_hero_network.txt', header=None, index=None, sep=' ')
 
+M = nx.read_pajek("clean_hero_network.txt")
+G = nx.Graph()
+for u,v,data in M.edges_iter(data=True):
+    w = data['weight'] if 'weight' in data else 1.0
+    if G.has_edge(u,v):
+        G[u][v]['weight'] += w
+    else:
+        G.add_edge(u, v, weight=w)
+
+nx.write_pajek(G,"weighted_hero_network.txt")
