@@ -90,26 +90,6 @@ table.form ul#id_days li {
     padding: 0px;
 }
 
-table.courses {
-    border: 1px solid #ddd;
-    padding: 0px;
-    margin: 0px;
-}
-
-table.courses tr th {
-    text-align: left;
-}
-
-table.courses tr td,
-table.courses tr th {
-    padding: 3px;
-    font-size: 12px;
-}
-
-table.courses tr:nth-child(even) {
-    background: #eee;
-}
-
 ul.errorlist {
     margin: 0px;
     padding: 0px;
@@ -128,3 +108,4 @@ span.helptext {
     font-size: 11px;
     color: gray;
 }
+fieldset.inlineLabels ul {list-style:none}

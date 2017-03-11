@@ -19,7 +19,7 @@ from PIL import Image
 from functools import reduce
 from wiki_scraper import scraper
 
-NOPREF_STR = 'No preference'
+NOPREF_STR = 'Leave Blank'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
 COLUMN_NAMES = dict(
         hero_name='Hero Name',
@@ -29,12 +29,45 @@ COLUMN_NAMES = dict(
         eye='Eye Color',
         hair='Hair Color',
         sex='Sex',
+        gsm='Gender/Sexual Minority',
         alive='Alive/Dead',
         appearances='No. of Appearances',
         first_appearance='First Appearance',
         year='Year'
 )
 
+def _load_column(filename, col=0):
+    """Loads single column from csv file"""
+    with open(filename) as f:
+        col = list(zip(*csv.reader(f)))[0]
+        return list(col)
+
+def _load_res_column(filename, col=0):
+    """Load column from resource directory"""
+    return _load_column(os.path.join(RES_DIR, filename), col=col)
+
+class IntegerRange(forms.MultiValueField):
+    def __init__(self, *args, **kwargs):
+        fields = (forms.IntegerField(),
+                  forms.IntegerField())
+        super(IntegerRange, self).__init__(fields=fields,
+                                           *args, **kwargs)
+    def compress(self, values):
+        if values and (values[0] is None or values[1] is None):
+            raise forms.ValidationError('Must specify both lower and upper '
+                                        'bound, or leave both blank.')
+
+        return values
+
+class AppearanceRange(IntegerRange):
+    def compress(self, values):
+        super(AppearanceRange, self).compress(values)
+        if values and (values[1] < values[0]):
+            raise forms.ValidationError('Lower bound must not exceed upper bound.')
+        return values
+
+RANGE_WIDGET = forms.widgets.MultiWidget(widgets=(forms.widgets.NumberInput,
+                                                  forms.widgets.NumberInput))
 
 def _build_dropdown(options):
     """Converts a list to (value, caption) tuples"""
@@ -42,31 +75,49 @@ def _build_dropdown(options):
 
 UNIVERSE = _build_dropdown(['Marvel', 'DC'])
 IDENTITY = _build_dropdown(['Secret Identity', 'Public Identity'])
+GSM = _build_dropdown(_load_res_column('gsm_list.csv'))
+EYE_COLOR = _build_dropdown(_load_res_column('eye_color.csv'))
+
 
 class SearchForm(forms.Form):
-    universe = forms.MultipleChoiceField(label='Comic Universe',
-                                         choices=UNIVERSE,
-                                         widget=forms.CheckboxSelectMultiple,
-                                         required=True)
+    universe = forms.TypedChoiceField(label='Comic Universe',
+                                      coerce=lambda x: x=='True',
+                                      choices=((False, 'Marvel'), 
+                                        (True, 'DC')),
+                                      required=False)
+
+    show_attributes = forms.BooleanField(label='Search by Attributes',
+                                         required=False)
     query = forms.CharField(
             label='Character Name',
-            help_text='e.g. Spider-Man',
             required=False)
-    wiki = forms.TypedChoiceField(label='Request Wikipedia Information',
+    wiki = forms.TypedChoiceField(label='Wiki Information',
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
                                   required=False)
+
+    appearance = AppearanceRange(
+        label='No. of Appearances',
+        widget=RANGE_WIDGET,
+        required=False)
+
+    show_args = forms.BooleanField(label='Show args_to_ui',
+                                   required=False)
+
+    gsm = forms.MultipleChoiceField(label='Gender/Sexual Minority',
+                        choices=GSM,
+                        widget=forms.CheckboxSelectMultiple,
+                        required=False)
+
     iden = forms.MultipleChoiceField(label='Identity',
-                                         choices=IDENTITY,
+                                     choices=IDENTITY,
                                          widget=forms.CheckboxSelectMultiple,
                                          required=False)
-    eye = forms.CharField(label='Eye Color',
-                          help_text = 'e.g. Hazel',
-                          required=False)
-    #show_args = forms.BooleanField(label='Show args_to_ui',
-    #                               required=False)
-
-
+    #alignment eye color hair color sex GSM #  first appearance year 
+    eye = forms.MultipleChoiceField(label='Eye Color',
+                                    choices=EYE_COLOR,
+                                    widget=forms.CheckboxSelectMultiple,
+                                    required=False)
 def home(request):
     context = {}
     res = None
@@ -76,12 +127,15 @@ def home(request):
         # check whether it's valid:
         if form.is_valid():
             # Convert form data to an args dictionary for find_attributes
+            if form.cleaned_data['show_attributes']:
+                context['attributes'] = True
             args = {}
             if form.cleaned_data['query']:
                 hero = form.cleaned_data['query']
                 args['name'] = hero #538 CSV Data
                 api_result = apicall(hero) #Marvel API Data
                 desc = api_result[0]
+                context['desc_title'] = hero
                 context['desc'] = text.wrap((desc), width=170)
                 if api_result[1] == 1:
                     context['img'] = True
@@ -94,11 +148,16 @@ def home(request):
             eye_color = form.cleaned_data['eye']
             if eye_color:
                 args['eye'] = eye_color + ' Eyes'
-                #image = get_img(form.cleaned_data['query'])
-                #image.save('../static', 'JPEG')
+            appearances = form.cleaned_data['appearance']
+            if appearances:
+                args['appearances_lower'] = appearances[0]
+                args['appearances_upper'] = appearances[1]
+            gsm = form.cleaned_data['gsm']
+            if gsm:
+                args['gsm'] = gsm            
 
-            #if form.cleaned_data['show_args']:
-            #    context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+            if form.cleaned_data['show_args']:
+                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
             try:
                 res = find_attributes(args)
