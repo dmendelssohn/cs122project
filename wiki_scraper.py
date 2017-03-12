@@ -80,8 +80,9 @@ def scraper(arg):
         pass
     elif ths[0].text in arg and soup.find_all(
         'th', text='In-story information') != []:
-        alter_ego = [soup.find_all(
-            'th', text='Alter ego')[0].next_sibling.next_sibling.text]
+        a_e = [soup.find_all('th', text='Alter ego')]
+        if a_e !=[[]]:
+            alter_ego = a_e[0].next_sibling.next_sibling.text
     elif soup.find_all('th', text='In-story information') != []:
         alter_ego = [ths[0].text]
     info_dict['Alter ego'] = alter_ego

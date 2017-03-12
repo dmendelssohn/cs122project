@@ -22,7 +22,9 @@ d1 = {'name': ['hero_name', 'alias',
       'appearances_upper': ['hero_name', 'alias', 'appearances'],
       'appearances': ['hero_name', 'alias', 'appearances'],
       'first_appearance': ['hero_name', 'alias', 'first_appearance'],
-      'year': ['hero_name', 'alias', 'year']}
+      'year_lower': ['hero_name', 'alias', 'first_appearance'],
+      'year_upper': ['hero_name', 'alias', 'first_appearance'],
+      'universe': []}
 
 d2 = {'hero_name': (1, 'hero_name'),
       'alias': (2, 'alias'),
@@ -38,27 +40,39 @@ d2 = {'hero_name': (1, 'hero_name'),
       'year': (12, 'year')}
 
 def determine_attributes(args_from_ui):
-    '''
-    Takes a dictionary containing search criteria and returns a list of 
-    attributes needed for SQL query
-    '''
-    attribute_set = set()
-    attribute_tuples = []
-    attributes = []   
+  '''
+  Takes a dictionary containing search criteria and returns a list of 
+  attributes needed for SQL query
+  '''
+  attribute_set = set()
+  attribute_tuples = []
+  attributes = []   
 
-    for key in args_from_ui:
-      for attribute in d1[key]:
-        attribute_set.add(attribute)
+  for key in args_from_ui:
+    for attribute in d1[key]:
+      attribute_set.add(attribute)
 
-    for attribute in attribute_set:
-      attribute_tuples.append(d2[attribute])
+  for attribute in attribute_set:
+    attribute_tuples.append(d2[attribute])
 
-    attribute_tuples.sort()
+  attribute_tuples.sort()
 
-    for attribute in attribute_tuples:
-      attributes.append(attribute[1])
+  for attribute in attribute_tuples:
+    attributes.append(attribute[1])
 
-    return attributes
+  return attributes
+
+def get_from_clause(args_from_ui):
+  '''
+  Takes a dictionary containing key-value:
+    'universe': 0 or 1
+  and returns a string 'FROM marvel' if 0
+                       'FROM dc' if 1
+  '''
+  if args_from_ui['universe'] == 0:
+    return ' FROM marvel'
+  else:
+    return 'FROM dc'
 
 def where(args_from_ui):
   '''
@@ -69,30 +83,33 @@ def where(args_from_ui):
   params = []
   s = ' WHERE '
   for arg in args_from_ui:
-    if s != ' WHERE ':
-      s += ' AND '
-    if arg == 'name':
-      s += '(' + arg + ' = ? COLLATE NOCASE OR hero_name = ? COLLATE NOCASE OR alias = ? COLLATE NOCASE)' 
-      params += [args_from_ui[arg]] * 3
-    elif arg == 'ID' or arg == 'gsm' or arg == 'align' or arg == 'eye' or arg == 'hair' or arg == 'sex':
-      if arg != []:
-        s += arg + ' IN ('
-        print(args_from_ui[arg])
-        for entry in args_from_ui[arg]:
-          s+= '?'
-          if entry != args_from_ui[arg][-1]:
-            s+= ', '
-          params.append(entry)
-        s+= ')'
-    elif arg == 'appearances_lower':
-      s += 'appearances >= ?'
-      params.append(args_from_ui[arg])
-    elif arg == 'appearances_upper':
-      s += 'appearances <= ?'
-      params.append(args_from_ui[arg])
-    else:
-      s += arg + ' = ?'
-      params.append(args_from_ui[arg])
+    if not arg == 'universe':
+      if s != ' WHERE ':
+        s += ' AND '
+      if arg == 'name':
+        s += '(' + arg + ' = ? COLLATE NOCASE OR hero_name = ? COLLATE NOCASE OR alias = ? COLLATE NOCASE)' 
+        params += [args_from_ui[arg]] * 3
+      elif arg == 'appearances_lower':
+        s += 'appearances >= ?'
+        params.append(args_from_ui[arg])
+      elif arg == 'appearances_upper':
+        s += 'appearances <= ?'
+        params.append(args_from_ui[arg])
+      elif arg == 'year_lower':
+        s += 'year >= ?'
+        params.append(args_from_ui[arg])
+      elif arg == 'year_upper':
+        s += 'year <= ?'
+        params.append(args_from_ui[arg])
+      else:
+        if arg != []:
+          s += arg + ' IN ('
+          for entry in args_from_ui[arg]:
+            s+= '?'
+            if entry != args_from_ui[arg][-1]:
+              s+= ', '
+            params.append(entry)
+          s+= ')'
 
   return (s, params)
 
@@ -146,14 +163,14 @@ def find_attributes(args_from_ui):
       return ([], [])
 
     attribute_string = ", ".join(attributes)
-    where_clause, params = where(args_from_ui)   
+    from_clause = get_from_clause(args_from_ui)     
+    where_clause, params = where(args_from_ui)  
 
     connection = sqlite3.connect(DATABASE_FILENAME)
     cursor = connection.cursor()
 
-    S = 'SELECT ' + attribute_string + ' FROM marvel' + where_clause
-    print(S)
-    print(params)
+    S = 'SELECT ' + attribute_string + from_clause + where_clause
+    print(S, params)
     query = cursor.execute(S, params)     
 
     result = query.fetchall()
@@ -162,5 +179,4 @@ def find_attributes(args_from_ui):
 
     if result == []:
       return ([], [])
-    return(header, result)  
-    #return (result)    
+    return(header, result)    

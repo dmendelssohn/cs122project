@@ -3,7 +3,9 @@ import requests
 import time
 from priv_key import priv
 import csv
+import os 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def apicall(name):
 
@@ -12,7 +14,7 @@ def apicall(name):
 
     desc = ''
     t = time.time()
-    m.update((str(t) + priv + pub).encode('utf-8'))
+    m.update((str(t) + priv() + pub).encode('utf-8'))
     hashed = m.hexdigest()
     params = {"hash":hashed,"apikey":pub,"ts":t,"name":name}
     url = "https://gateway.marvel.com/v1/public/characters"
@@ -27,11 +29,11 @@ def apicall(name):
                 stream=True)
             if img.status_code == 200:
                 imgbool = 1
-                with open('character_image.jpg', 'wb') as writer:
+                with open(os.path.join(BASE_DIR,'ui/static/character.jpg'), 'wb') as writer:
                     for piece in img:
                         writer.write(piece)
 
     if desc == '':
-        return 'Sorry, no character description available', 0, imgbool
+        return 'Sorry, no character description available', imgbool
     else:
-        return desc, 1, imgbool
+        return desc, imgbool

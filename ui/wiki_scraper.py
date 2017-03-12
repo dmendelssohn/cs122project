@@ -13,7 +13,7 @@ def scraper(arg):
     if soup.find_all('table', id='disambigbox') !=[]:
         atags = soup.find_all('a')
         for a in atags:
-            if 'comics' in a.text:
+            if 'comics' in a.text or 'Comics' in a.text:
                 return scraper(a.text)
 
     ab_lis = [th.next_sibling.next_sibling.find_all('li') for th in ths \
@@ -24,7 +24,7 @@ def scraper(arg):
             th = soup.find_all('th', text='Abilities')
             abilities_list = th[0].next_sibling.next_sibling.text.split('\n')
     else:
-        abilities_list = ['No specific abilities']
+        abilities_list = ['No specific abilities information available']
     info_dict['Abilities'] = abilities_list
 
     ta_lis = [th.next_sibling.next_sibling.find_all('a') for th in ths \
@@ -80,8 +80,9 @@ def scraper(arg):
         pass
     elif ths[0].text in arg and soup.find_all(
         'th', text='In-story information') != []:
-        alter_ego = [soup.find_all(
-            'th', text='Alter ego')[0].next_sibling.next_sibling.text]
+        a_e = [soup.find_all('th', text='Alter ego')]
+        if a_e !=[[]]:
+            alter_ego = [a_e[0][0].next_sibling.next_sibling.text]
     elif soup.find_all('th', text='In-story information') != []:
         alter_ego = [ths[0].text]
     info_dict['Alter ego'] = alter_ego
