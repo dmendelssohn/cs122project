@@ -77,7 +77,22 @@ UNIVERSE = _build_dropdown(['Marvel', 'DC'])
 IDENTITY = _build_dropdown(['Secret Identity', 'Public Identity'])
 GSM = _build_dropdown(_load_res_column('gsm_list.csv'))
 EYE_COLOR = _build_dropdown(_load_res_column('eye_color.csv'))
+ALIGNMENT = _build_dropdown(_load_res_column('alignment.csv'))
+HAIR_COLOR = _build_dropdown(_load_res_column('hair_color.csv'))
+SEX = _build_dropdown(_load_res_column('sex.csv'))
 
+'''class CustomCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    def __init__(self, attrs=None):
+        super(CustomCheckboxSelectMultiple, self).__init__(attrs)
+
+    def render(self, name, value, attrs=None, choices=()):
+        output = super(CustomCheckboxSelectMultiple, self).render(name, value, attrs, choices)
+
+        style = self.attrs.get('style', None)
+        if style:
+            output = output.replace("<ul", format_html('<ul style="{0}"', style))
+
+        return mark_safe(output)'''
 
 class SearchForm(forms.Form):
     universe = forms.TypedChoiceField(label='Comic Universe',
@@ -111,11 +126,23 @@ class SearchForm(forms.Form):
 
     iden = forms.MultipleChoiceField(label='Identity',
                                      choices=IDENTITY,
-                                         widget=forms.CheckboxSelectMultiple,
-                                         required=False)
+                                     widget=forms.CheckboxSelectMultiple,
+                                     required=False)
+    align = forms.MultipleChoiceField(label='Alignment',
+                                     choices=ALIGNMENT,
+                                     widget=forms.CheckboxSelectMultiple,
+                                     required=False)
     #alignment eye color hair color sex GSM #  first appearance year 
     eye = forms.MultipleChoiceField(label='Eye Color',
                                     choices=EYE_COLOR,
+                                    widget=forms.CheckboxSelectMultiple,
+                                    required=False)
+    hair = forms.MultipleChoiceField(label='Hair Color',
+                                    choices=HAIR_COLOR,
+                                    widget=forms.CheckboxSelectMultiple,
+                                    required=False)
+    sex = forms.MultipleChoiceField(label='Sex',
+                                    choices=SEX,
                                     widget=forms.CheckboxSelectMultiple,
                                     required=False)
 def home(request):
@@ -139,15 +166,24 @@ def home(request):
                 context['desc'] = text.wrap((desc), width=170)
                 if api_result[1] == 1:
                     context['img'] = True
-            wiki_info = form.cleaned_data['wiki']
-            if wiki_info:
-                context['wiki'] = scraper(hero)
+                wiki_info = form.cleaned_data['wiki']
+                if wiki_info:
+                    context['wiki'] = scraper(hero)
             identity = form.cleaned_data['iden']
             if identity:
                 args['ID'] = identity
+            alignment = form.cleaned_data['align']
+            if alignment:
+                args['align'] = alignment
+            sex = form.cleaned_data['sex']
+            if sex:
+                args['sex'] = sex
             eye_color = form.cleaned_data['eye']
             if eye_color:
-                args['eye'] = eye_color + ' Eyes'
+                args['eye'] = eye_color
+            hair_color = form.cleaned_data['hair']
+            if hair_color:
+                args['hair'] = hair_color
             appearances = form.cleaned_data['appearance']
             if appearances:
                 args['appearances_lower'] = appearances[0]
