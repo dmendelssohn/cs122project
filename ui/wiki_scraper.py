@@ -17,18 +17,17 @@ def scraper(arg):
         abilities_list = ['No specific abilities']
     info_dict['Abilities'] = abilities_list
 
-    ta_lis = [th.next_sibling.next_sibling.find_all('li') for th in ths if th.text == 'Team affiliations']
+    ta_lis = [th.next_sibling.next_sibling.find_all('a') for th in ths if th.text == 'Team affiliations']
     if ta_lis != []:
         team_list = [li.text for li in ta_lis[0]]
     else:
         team_list = ['No team affiliations']
     info_dict['Teams'] = team_list
 
-    sp_lis = [th.next_sibling.next_sibling.find_all('li') for th in ths if th.text == 'Species']
-    if sp_lis != []:
-        species_list = [li.text for li in sp_lis[0]]
-    else:
-        species_list = ['No known species']
+    species_list = ['No known species']
+    for th in ths[:20]:
+        if th.text == 'Species':
+            species_list = [th.next_sibling.next_sibling.text]
     info_dict['Species'] = species_list
 
     publisher_list = ['No publisher information available']
