@@ -62,12 +62,13 @@ def scraper(arg):
             aliases_list = [li.text[:-3] for li in th.next_sibling.next_sibling.find_all('li')]
     info_dict['Aliases'] = aliases_list
 
-    if soup.find_all('a', class_='mw-redirect', title=arg) == 0:
+    alter_ego = ['No alter ego information available']
+    if soup.find_all('a', class_='mw-redirect', title=arg) == []:
         alter_ego = soup.find_all(
             'th', text='Alter ego')[0].next_sibling.next_sibling.text
     else:
         alter_ego = ths[0].text
-    info_dict['Alter ego'] = [alter_ego]
+    info_dict['Alter ego'] = alter_ego
 
     return info_dict
 
