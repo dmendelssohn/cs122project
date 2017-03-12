@@ -34,7 +34,6 @@ COLUMN_NAMES = dict(
         alive='Alive/Dead',
         appearances='No. of Appearances',
         first_appearance='First Appearance',
-        year='Year'
 )
 
 def _load_column(filename, col=0):
@@ -47,6 +46,10 @@ def _load_res_column(filename, col=0):
     """Load column from resource directory"""
     return _load_column(os.path.join(RES_DIR, filename), col=col)
 
+def _build_dropdown(options):
+    """Converts a list to (value, caption) tuples"""
+    return [(x, x) if x is not None else ('', NOPREF_STR) for x in options]
+
 class IntegerRange(forms.MultiValueField):
     def __init__(self, *args, **kwargs):
         fields = (forms.IntegerField(),
@@ -55,24 +58,36 @@ class IntegerRange(forms.MultiValueField):
                                            *args, **kwargs)
     def compress(self, values):
         if values and (values[0] is None or values[1] is None):
-            raise forms.ValidationError('Must specify both lower and upper '
+            raise forms.ValidationError('Error in Attribute Search (Integer Range): Must specify both lower and upper '
                                         'bound, or leave both blank.')
+        if values and (values[1] < values[0]):
+            raise forms.ValidationError('Error in Attribute Search: Lower bound must not exceed upper bound.')        
 
         return values
 
 class AppearanceRange(IntegerRange):
     def compress(self, values):
         super(AppearanceRange, self).compress(values)
-        if values and (values[1] < values[0]):
-            raise forms.ValidationError('Lower bound must not exceed upper bound.')
+
+    def compress(self, values):
+        if values and (values[0] < 0 or values[1] < 0):
+            raise forms.ValidationError('Error in Attribute Search: No. of Appearances cannot be negative')
+
         return values
+
+class Year(IntegerRange):
+    def compress(self, values):
+        super(Year, self).compress(values)
+
+        if values and (values[0] < 1900 or values[1] > 2017):
+            raise forms.ValidationError('Error in Attribute Search: First Appearance must be after 1900 and before 2017')
+
+        return values
+
 
 RANGE_WIDGET = forms.widgets.MultiWidget(widgets=(forms.widgets.NumberInput,
                                                   forms.widgets.NumberInput))
 
-def _build_dropdown(options):
-    """Converts a list to (value, caption) tuples"""
-    return [(x, x) if x is not None else ('', NOPREF_STR) for x in options]
 
 UNIVERSE = _build_dropdown(['Marvel', 'DC'])
 IDENTITY = _build_dropdown(['Secret Identity', 'Public Identity'])
@@ -81,19 +96,6 @@ EYE_COLOR = _build_dropdown(_load_res_column('eye_color.csv'))
 ALIGNMENT = _build_dropdown(_load_res_column('alignment.csv'))
 HAIR_COLOR = _build_dropdown(_load_res_column('hair_color.csv'))
 SEX = _build_dropdown(_load_res_column('sex.csv'))
-
-'''class CustomCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
-    def __init__(self, attrs=None):
-        super(CustomCheckboxSelectMultiple, self).__init__(attrs)
-
-    def render(self, name, value, attrs=None, choices=()):
-        output = super(CustomCheckboxSelectMultiple, self).render(name, value, attrs, choices)
-
-        style = self.attrs.get('style', None)
-        if style:
-            output = output.replace("<ul", format_html('<ul style="{0}"', style))
-
-        return mark_safe(output)'''
 
 class SearchForm(forms.Form):
     universe = forms.TypedChoiceField(label='Comic Universe',
@@ -107,6 +109,7 @@ class SearchForm(forms.Form):
     query = forms.CharField(
             label='Character Name',
             required=False)
+
     grapher = forms.TypedChoiceField(label='Network Graph',
                                      help_text=' Warning: Graph may take a long time to load',
                                   coerce=lambda x: x=='True',
@@ -122,14 +125,18 @@ class SearchForm(forms.Form):
         widget=RANGE_WIDGET,
         required=False)
 
-    show_args = forms.BooleanField(label='Show args_to_ui',
-                                   required=False)
+    year = Year(
+        label='First Appearance (Year)',
+        widget=RANGE_WIDGET,
+        required=False)
+
+    show_args = forms.BooleanField(label='Show args_to_ui', #for debugging#
+                                   required=False)#
 
     gsm = forms.MultipleChoiceField(label='Gender/Sexual Minority',
-                        choices=GSM,
-                        widget=forms.CheckboxSelectMultiple,
-                        required=False)
-
+                                    choices=GSM,
+                                    widget=forms.CheckboxSelectMultiple,
+                                    required=False)
     iden = forms.MultipleChoiceField(label='Identity',
                                      choices=IDENTITY,
                                      widget=forms.CheckboxSelectMultiple,
@@ -138,7 +145,6 @@ class SearchForm(forms.Form):
                                      choices=ALIGNMENT,
                                      widget=forms.CheckboxSelectMultiple,
                                      required=False)
-    #first appearance year 
     eye = forms.MultipleChoiceField(label='Eye Color',
                                     choices=EYE_COLOR,
                                     widget=forms.CheckboxSelectMultiple,
@@ -151,6 +157,7 @@ class SearchForm(forms.Form):
                                     choices=SEX,
                                     widget=forms.CheckboxSelectMultiple,
                                     required=False)
+
 def home(request):
     context = {}
     res = None
@@ -163,6 +170,10 @@ def home(request):
             if form.cleaned_data['show_attributes']:
                 context['attributes'] = True
             args = {}
+            if form.cleaned_data['universe']: #dc
+                args['universe'] = 1
+            else: #marvel
+                args['universe'] = 0
             if form.cleaned_data['query']:
                 hero = form.cleaned_data['query']
                 args['name'] = hero #538 CSV Data
@@ -177,8 +188,9 @@ def home(request):
                     context['wiki'] = scraper(hero)
                 graph = form.cleaned_data['grapher']
                 if graph:
-                    grapher.get_network(hero)
+                    result = grapher.get_network(hero)
                     context['grapher'] = True
+                    context['grapher_info'] = result 
             identity = form.cleaned_data['iden']
             if identity:
                 args['ID'] = identity
@@ -198,13 +210,15 @@ def home(request):
             if appearances:
                 args['appearances_lower'] = appearances[0]
                 args['appearances_upper'] = appearances[1]
+            year = form.cleaned_data['year']
+            if year:
+                args['year_lower'] = year[0]
+                args['year_upper'] = year[1]                
             gsm = form.cleaned_data['gsm']
             if gsm:
                 args['gsm'] = gsm            
-
             if form.cleaned_data['show_args']:
                 context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
-
             try:
                 res = find_attributes(args)
             except Exception as e:
@@ -228,17 +242,11 @@ def home(request):
         context['err'] = res
         result = None
         cols = None
-    #elif not _valid_result(res):
-    #    context['result'] = None
-    #    context['err'] = ('Return of find_courses has the wrong data type. '
-    #                     'Should be a tuple of length 4 with one string and three lists.')
     else:
         columns, result = res
-
         # Wrap in tuple if result is not already
         if result and isinstance(result[0], str):
             result = [(r,) for r in result]
-
         context['result'] = result
         context['num_results'] = len(result)
         context['columns'] = [COLUMN_NAMES.get(col, col) for col in columns]

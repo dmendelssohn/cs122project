@@ -16,16 +16,56 @@
             <form method="get">
                 {% csrf_token %}
                 <table class="form">
-                <tr><td>{{form.universe.label}}:</td><td>{{form.universe}}</td></tr>
-                <tr><td>{{form.query.label}}:</td><td>{{form.query}}</td></tr>
-                <tr><td>{{form.grapher.label}}:</td><td>{{form.grapher}}{{form.grapher.help_text}}</td></tr>
-                <tr><td>{{form.wiki.label}}:</td><td>{{form.wiki}}</td></tr>
-                <tr><td>{{form.show_attributes.label}}:</td><td>{{form.show_attributes}}
+                <tr>
+                    <td>{{form.universe.label}}:</td>
+                    <td>{{form.universe}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.query.label}}:</td>
+                    <td>{{form.query}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.grapher.label}}:</td>
+                    <td>{{form.grapher}}{{form.grapher.help_text}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.wiki.label}}:</td>
+                    <td>{{form.wiki}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.show_attributes.label}}:</td>
+                    <td>{{form.show_attributes}}</td>
+                </tr>
                 {% if attributes %}
-                <tr><td>{{form.appearance.label}}:</td><td>{{form.appearance}}</td></tr>
-                <tr align='top'><td>{{form.iden.label}}:</td><td>{{form.iden}}</td><td>{{form.align.label}}:</td><td>{{form.align}}</td><td>{{form.sex.label}}:</td><td>{{form.sex}}</td></tr>
-                <tr><td>{{form.gsm.label}}:</td><td>{{form.gsm}}</td></tr>
-                <tr><td>{{form.eye.label}}:</td><td>{{form.eye}}</td><td>{{form.hair.label}}:</td><td>{{form.hair}}</td></tr>
+                <tr>
+                    <td><h2>Attributes</h2></td>
+                </tr>
+                <tr>
+                    <td>{{form.appearance.label}}:</td>
+                    <td>{{form.appearance}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.year.label}}:</td>
+                    <td>{{form.year}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.iden.label}}:</td>
+                    <td>{{form.iden}}</td>
+                    <td>{{form.align.label}}:</td>
+                    <td>{{form.align}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.gsm.label}}:</td>
+                    <td>{{form.gsm}}</td>
+                    <td>{{form.sex.label}}:</td>
+                    <td>{{form.sex}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.eye.label}}:</td>
+                    <td>{{form.eye}}</td>
+                    <td>{{form.hair.label}}:</td>
+                    <td>{{form.hair}}</td>
+                </tr>
                 {% endif%}
                 </table>
                 <input type="submit" value="Submit" />
@@ -51,7 +91,17 @@
             <img src="{% static "character.jpg" %}" height=500 width=600/>
             {% endif %}
             {% if grapher %}
-            <embed src="{% static "network.pdf" %}" type='application/pdf' height=500 width=600/> 
+            <embed src="{% static "network.jpg" %}" height=500 width=600/> 
+            <h2>Network Information</h2>
+            <table>
+            <tr>
+                <td>Number of characters in graph:</td>
+                <td>{{grapher_info.1}}</td>
+            </tr>
+            <tr>
+                <td>Character that appears the most with {{ desc_title }}:</td>
+                <td>{{grapher_info.0}}</td>
+            </table>
             {% endif %}
         </div>
 
@@ -82,7 +132,20 @@
         </div>
         {% endif %}
 
-
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                    </div>  
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <div class="frame">
             {% if result %}
