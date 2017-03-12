@@ -78,16 +78,18 @@ table.form input#id_query {
     font-size: 18px;
 }
 
-table.form ul#id_days {
+table.form ul {
     margin: 0px;
     padding: 0px;
+    list-style-type:none;
 }
 
-table.form ul#id_days li {
+table.form ul li {
     display: block;
     float: left;
     margin: 0px;
     padding: 0px;
+    list-style-type: none;
 }
 
 ul.errorlist {
@@ -108,4 +110,7 @@ span.helptext {
     font-size: 11px;
     color: gray;
 }
-fieldset.inlineLabels ul {list-style:none}
+
+.img{
+    display:inline-block;
+}

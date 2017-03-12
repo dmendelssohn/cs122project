@@ -18,6 +18,7 @@ from apicall import apicall
 from PIL import Image
 from functools import reduce
 from wiki_scraper import scraper
+import grapher
 
 NOPREF_STR = 'Leave Blank'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
@@ -106,6 +107,10 @@ class SearchForm(forms.Form):
     query = forms.CharField(
             label='Character Name',
             required=False)
+    grapher = forms.TypedChoiceField(label='Network Graph',
+                                  coerce=lambda x: x=='True',
+                                  choices=((False, 'No'), (True, 'Yes')),
+                                  required=False)
     wiki = forms.TypedChoiceField(label='Wiki Information',
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
@@ -132,7 +137,7 @@ class SearchForm(forms.Form):
                                      choices=ALIGNMENT,
                                      widget=forms.CheckboxSelectMultiple,
                                      required=False)
-    #alignment eye color hair color sex GSM #  first appearance year 
+    #first appearance year 
     eye = forms.MultipleChoiceField(label='Eye Color',
                                     choices=EYE_COLOR,
                                     widget=forms.CheckboxSelectMultiple,
@@ -162,13 +167,17 @@ def home(request):
                 args['name'] = hero #538 CSV Data
                 api_result = apicall(hero) #Marvel API Data
                 desc = api_result[0]
-                context['desc_title'] = hero
+                context['desc_title'] = hero.title()
                 context['desc'] = text.wrap((desc), width=170)
                 if api_result[1] == 1:
                     context['img'] = True
-                wiki_info = form.cleaned_data['wiki']
+                wiki_info = form.cleaned_data['wiki'] #Wiki Scraper
                 if wiki_info:
                     context['wiki'] = scraper(hero)
+                graph = form.cleaned_data['grapher']
+                if graph:
+                    grapher.get_network(hero)
+                    context['grapher'] = True
             identity = form.cleaned_data['iden']
             if identity:
                 args['ID'] = identity

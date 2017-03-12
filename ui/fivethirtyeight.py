@@ -18,6 +18,8 @@ d1 = {'name': ['hero_name', 'alias',
       'sex': ['hero_name', 'alias', 'sex'],
       'gsm': ['hero_name', 'alias', 'gsm'],
       'alive': ['hero_name', 'alias', 'alive'],
+      'appearances_lower': ['hero_name', 'alias', 'appearances'],
+      'appearances_upper': ['hero_name', 'alias', 'appearances'],
       'appearances': ['hero_name', 'alias', 'appearances'],
       'first_appearance': ['hero_name', 'alias', 'first_appearance'],
       'year': ['hero_name', 'alias', 'year']}
@@ -72,14 +74,22 @@ def where(args_from_ui):
     if arg == 'name':
       s += '(' + arg + ' = ? COLLATE NOCASE OR hero_name = ? COLLATE NOCASE OR alias = ? COLLATE NOCASE)' 
       params += [args_from_ui[arg]] * 3
-    elif arg == 'ID':
-      s += arg + ' IN ('
-      for iden in args_from_ui[arg]:
-        s+= '?'
-        if iden != args_from_ui[arg][-1]:
-          s+= ', '
-        params.append(iden)
-      s+= ')'
+    elif arg == 'ID' or arg == 'gsm' or arg == 'align' or arg == 'eye' or arg == 'hair' or arg == 'sex':
+      if arg != []:
+        s += arg + ' IN ('
+        print(args_from_ui[arg])
+        for entry in args_from_ui[arg]:
+          s+= '?'
+          if entry != args_from_ui[arg][-1]:
+            s+= ', '
+          params.append(entry)
+        s+= ')'
+    elif arg == 'appearances_lower':
+      s += 'appearances >= ?'
+      params.append(args_from_ui[arg])
+    elif arg == 'appearances_upper':
+      s += 'appearances <= ?'
+      params.append(args_from_ui[arg])
     else:
       s += arg + ' = ?'
       params.append(args_from_ui[arg])
@@ -141,7 +151,7 @@ def find_attributes(args_from_ui):
     connection = sqlite3.connect(DATABASE_FILENAME)
     cursor = connection.cursor()
 
-    S = 'SELECT ' + attribute_string + ' FROM marvel' + where_clause + 'LIMIT 100'
+    S = 'SELECT ' + attribute_string + ' FROM marvel' + where_clause
     print(S)
     print(params)
     query = cursor.execute(S, params)     
