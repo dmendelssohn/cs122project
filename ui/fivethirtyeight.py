@@ -10,7 +10,7 @@ DATABASE_FILENAME = os.path.join(DATA_DIR, 'fivethirtyeight_marvel.db')
 
 d1 = {'name': ['hero_name', 'alias',
       'ID', 'align', 'eye', 'hair', 'sex', 'gsm', 'alive',
-      'appearances', 'first_appearance', 'year'],
+      'appearances', 'first_appearance'],
       'ID': ['hero_name', 'alias', 'ID'],
       'align': ['hero_name', 'alias', 'align'],
       'eye': ['hero_name', 'alias', 'eye'],

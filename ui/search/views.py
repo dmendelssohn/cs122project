@@ -108,6 +108,7 @@ class SearchForm(forms.Form):
             label='Character Name',
             required=False)
     grapher = forms.TypedChoiceField(label='Network Graph',
+                                     help_text=' Warning: Graph may take a long time to load',
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
                                   required=False)

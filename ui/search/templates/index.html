@@ -18,7 +18,7 @@
                 <table class="form">
                 <tr><td>{{form.universe.label}}:</td><td>{{form.universe}}</td></tr>
                 <tr><td>{{form.query.label}}:</td><td>{{form.query}}</td></tr>
-                <tr><td>{{form.grapher.label}}:</td><td>{{form.grapher}}</td></tr>
+                <tr><td>{{form.grapher.label}}:</td><td>{{form.grapher}}{{form.grapher.help_text}}</td></tr>
                 <tr><td>{{form.wiki.label}}:</td><td>{{form.wiki}}</td></tr>
                 <tr><td>{{form.show_attributes.label}}:</td><td>{{form.show_attributes}}
                 {% if attributes %}
@@ -48,10 +48,10 @@
         <div class='img'>
             {% load static %}
             {% if img %}
-            <img src="{% static "character.jpg" %}" height=500/>
+            <img src="{% static "character.jpg" %}" height=500 width=600/>
             {% endif %}
             {% if grapher %}
-            <embed src="{% static "network.pdf" %}" type='application/pdf' height=500/> 
+            <embed src="{% static "network.pdf" %}" type='application/pdf' height=500 width=600/> 
             {% endif %}
         </div>
 
