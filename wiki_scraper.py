@@ -64,10 +64,10 @@ def scraper(arg):
 
     alter_ego = ['No alter ego information available']
     if soup.find_all('a', class_='mw-redirect', title=arg) == []:
-        alter_ego = soup.find_all(
-            'th', text='Alter ego')[0].next_sibling.next_sibling.text
+        alter_ego = [soup.find_all(
+            'th', text='Alter ego')[0].next_sibling.next_sibling.text]
     else:
-        alter_ego = ths[0].text
+        alter_ego = [ths[0].text]
     info_dict['Alter ego'] = alter_ego
 
     return info_dict
