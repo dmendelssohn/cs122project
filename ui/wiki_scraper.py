@@ -13,7 +13,7 @@ def scraper(arg):
     if soup.find_all('table', id='disambigbox') !=[]:
         atags = soup.find_all('a')
         for a in atags:
-            if 'comics' in a.text:
+            if 'comics' in a.text or 'Comics' in a.text:
                 return scraper(a.text)
 
     ab_lis = [th.next_sibling.next_sibling.find_all('li') for th in ths \

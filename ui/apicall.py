@@ -12,7 +12,7 @@ def apicall(name):
 
     desc = ''
     t = time.time()
-    m.update((str(t) + priv + pub).encode('utf-8'))
+    m.update((str(t) + priv() + pub).encode('utf-8'))
     hashed = m.hexdigest()
     params = {"hash":hashed,"apikey":pub,"ts":t,"name":name}
     url = "https://gateway.marvel.com/v1/public/characters"
