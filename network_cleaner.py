@@ -4,6 +4,12 @@ import re
 import networkx as nx
 
 def clean(string):
+    '''
+    Reformats a single string to work with networkx
+    Inputs:
+      string: (str) line in network csv to be cleaned
+    Outputs network line with proper formatting
+    '''
     string = string.strip()
     singlename = re.findall(r'^[^/]+',string)[0]
     fullname = re.findall(r'^([^,]+)(?:[\,][ ])*([^|]*)[|]*[ ]*(.*)',singlename)[0]

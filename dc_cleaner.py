@@ -14,6 +14,13 @@ for suf in suffs2:
 suffs4 = [' ' + x for x in suffs3]
 
 def replacer(s, suf):
+    '''
+    Deletes the irrelevant suffices
+    Inputs:
+      s: (str) string containing full name to be cleaned
+      suf: (str) suffix being dropped
+    Outputs string with name without the suffix
+    '''
     return s.replace(suf, "")
 
 dcdf['fullname'] = dcdf['name']

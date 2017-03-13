@@ -11,6 +11,13 @@ suffs = suffs[1:]
 suffs = [" " + x for x in suffs]
 
 def earth_replace(s,suff):
+    '''
+    Deletes the irrelevant suffices
+    Inputs:
+      s: (str) string containing full name to be cleaned
+      suff: (str) suffix being dropped
+    Outputs string with name without the suffix
+    '''
     return s.replace(suff,"")
 
 marveldf["name_no_earth"] = marveldf["name"]
