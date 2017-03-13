@@ -5,6 +5,12 @@ import requests
 
 
 def scraper(arg):
+    '''
+    Crawls through infobox and compiles relevant information
+    Inputs:
+      arg: (str) name of character supplied by user
+    Outputs dictionary containing lists of strings for relevant information
+    '''
     info_dict = {}
     r = requests.get('http://en.wikipedia.org/wiki/%s' % (arg))
     soup = bs4.BeautifulSoup(r.text)
@@ -93,10 +99,3 @@ def scraper(arg):
     info_dict['Alter ego'] = alter_ego
 
     return info_dict
-
-#Finding dopplegangers, probably belongs in another file
-#df = pd.read_csv('./fivethirtyeight_marvel.csv')
-#df2 = pd.read_csv('./marvel_sans_earth.csv')
-#joined = pd.concat([df, df2['name_no_earth']], axis=1)
-#test = joined['name_no_earth'].str.extract(
-#    r'^([^\(]*)(?: \((.*)\))*$', expand=True)
