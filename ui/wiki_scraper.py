@@ -51,6 +51,11 @@ def scraper(arg):
     for th in ths[:20]:
         if th.text == 'First appearance':
             first_appearance_list = [th.next_sibling.next_sibling.text]
+        if '\n' in first_appearance_list[0]:
+            first_appearance_list = th.next_sibling.next_sibling.text.split('\n')
+            for index, app in enumerate(first_appearance_list):
+                if app[-3] == '[':
+                    first_appearance_list[index] = app[:-3]
     info_dict['First appearance'] = first_appearance_list
 
     cr_as = [th.next_sibling.next_sibling.find_all('a') for th in ths \
