@@ -115,6 +115,8 @@ class SearchForm(forms.Form):
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
                                   required=False)
+    nodes = forms.IntegerField(label=' Max no. of Edges',
+                                required=False)
     wiki = forms.TypedChoiceField(label='Wiki Information',
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
@@ -132,7 +134,6 @@ class SearchForm(forms.Form):
 
     show_args = forms.BooleanField(label='Show args_to_ui', #for debugging#
                                    required=False)#
-
     gsm = forms.MultipleChoiceField(label='Gender/Sexual Minority',
                                     choices=GSM,
                                     widget=forms.CheckboxSelectMultiple,
@@ -188,9 +189,16 @@ def home(request):
                     context['wiki'] = scraper(hero)
                 graph = form.cleaned_data['grapher']
                 if graph:
-                    result = grapher.get_network(hero)
-                    context['grapher'] = True
-                    context['grapher_info'] = result 
+                    node = form.cleaned_data['nodes']
+                    if node:
+                        result = grapher.get_network(hero,node)
+                    else:
+                        result = grapher.get_network(hero)
+                    if result[0] == 1:
+                        context['grapher'] = True
+                        context['grapher_info'] = result
+                        if result[3]:
+                            context['grapher_lim'] = True  
             identity = form.cleaned_data['iden']
             if identity:
                 args['ID'] = identity

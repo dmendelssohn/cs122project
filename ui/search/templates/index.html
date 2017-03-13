@@ -26,7 +26,11 @@
                 </tr>
                 <tr>
                     <td>{{form.grapher.label}}:</td>
-                    <td>{{form.grapher}}{{form.grapher.help_text}}</td>
+                    <td>{{form.grapher}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.nodes.label}}:</td>
+                    <td>{{form.nodes}}</td>
                 </tr>
                 <tr>
                     <td>{{form.wiki.label}}:</td>
@@ -86,21 +90,30 @@
         {% endif %}
 
         <div class='img'>
+            <table>
             {% load static %}
             {% if img %}
+            <tr>
+                <td>
             <img src="{% static "character.jpg" %}" height=500 width=600/>
             {% endif %}
+                </td>
+            </tr>
+            </table>
             {% if grapher %}
-            <embed src="{% static "network.jpg" %}" height=500 width=600/> 
-            <h2>Network Information</h2>
+                <h2>Network Information</h2>         
+                <embed src="{% static "network.jpg" %}" height=500 width=600/>{% if grapher_lim %}<embed src="{% static "lim_network.jpg" %}" height=500 width=600/>
+                {% endif %}
             <table>
             <tr>
-                <td>Number of characters in graph:</td>
-                <td>{{grapher_info.1}}</td>
+                <td>Number of characters in unbounded graph:</td>
+                <td>{{grapher_info.2}}</td>
             </tr>
             <tr>
-                <td>Character that appears the most with {{ desc_title }}:</td>
-                <td>{{grapher_info.0}}</td>
+                <td>Characters that appear the most with {{ desc_title }}:</td>
+                {% for char in grapher_info.1 %}
+                <td>({{char}})</td>
+                {% endfor %}
             </table>
             {% endif %}
         </div>
