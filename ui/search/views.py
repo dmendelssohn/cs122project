@@ -90,7 +90,7 @@ RANGE_WIDGET = forms.widgets.MultiWidget(widgets=(forms.widgets.NumberInput,
 
 
 UNIVERSE = _build_dropdown(['Marvel', 'DC'])
-IDENTITY = _build_dropdown(['Secret Identity', 'Public Identity'])
+IDENTITY = _build_dropdown(_load_res_column('ID.csv'))
 GSM = _build_dropdown(_load_res_column('gsm_list.csv'))
 EYE_COLOR = _build_dropdown(_load_res_column('eye_color.csv'))
 ALIGNMENT = _build_dropdown(_load_res_column('alignment.csv'))
@@ -116,6 +116,7 @@ class SearchForm(forms.Form):
                                   choices=((False, 'No'), (True, 'Yes')),
                                   required=False)
     nodes = forms.IntegerField(label=' Max no. of Edges',
+                                min_value=0,
                                 required=False)
     wiki = forms.TypedChoiceField(label='Wiki Information',
                                   coerce=lambda x: x=='True',

@@ -6,7 +6,7 @@ import apicall
 
 # Use this filename for the database
 DATA_DIR = os.path.dirname(__file__)
-DATABASE_FILENAME = os.path.join(DATA_DIR, 'fivethirtyeight_marvel.db')
+DATABASE_FILENAME = os.path.join(DATA_DIR, 'fivethirtyeight.db')
 
 d1 = {'name': ['hero_name', 'alias',
       'ID', 'align', 'eye', 'hair', 'sex', 'gsm', 'alive',
@@ -72,7 +72,7 @@ def get_from_clause(args_from_ui):
   if args_from_ui['universe'] == 0:
     return ' FROM marvel'
   else:
-    return 'FROM dc'
+    return ' FROM dc'
 
 def where(args_from_ui):
   '''
