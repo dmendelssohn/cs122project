@@ -163,17 +163,6 @@
             {% endfor %}
         {% endif %}
 
-        <div>
-            {% if fuzzymatch %}
-            <h2>Did you mean...</h2>
-            <table> {% for match in fuzzymatch %}
-                <tr>
-                    <td>{{match}}</td>
-                </tr>
-                {% endfor %}
-            {% endif %}
-        </div>
-
         <div class="frame">
             {% if result %}
             <h2>All Possible Matches</h2>
@@ -196,5 +185,15 @@
             <p class="num_results">Results: {{ num_results }}</p>
             {% endif %}
         </div>
+        <div>
+            {% if fuzzymatch %}
+            <h2>Alternate Search Suggestions</h2>
+            <table> {% for match in fuzzymatch %}
+                <tr>
+                    <td>{{match}}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </div>        
     </body>
 </html>

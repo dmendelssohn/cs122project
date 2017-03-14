@@ -182,7 +182,7 @@ def home(request):
                 args['universe'] = 0
             hero = ''
             if form.cleaned_data['query']:
-                hero = form.cleaned_data['query']
+                hero = form.cleaned_data['query']              
                 args['name'] = hero #538 CSV Data
                 api_result = apicall(hero) #Marvel API Data
                 desc = api_result[0]
@@ -204,7 +204,10 @@ def home(request):
                         context['grapher'] = True
                         context['grapher_info'] = result
                         if result[3]:
-                            context['grapher_lim'] = True  
+                            context['grapher_lim'] = True
+                # Alternate Suggestions                             
+                fuzzymatch = partial_matcher(hero, args['universe']) 
+                context['fuzzymatch'] = fuzzymatch                            
             identity = form.cleaned_data['iden']
             if identity:
                 args['ID'] = identity
@@ -234,14 +237,8 @@ def home(request):
             #if form.cleaned_data['show_args']:
             #    context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
-            results = find_attributes(args)
-
-            if results == ([],[]):
-                if hero != '':
-                    fuzzymatch = partial_matcher(hero, args['universe'])
-                    context['fuzzymatch'] = fuzzymatch
             try:
-                res = results
+                res = find_attributes(args)
             except Exception as e:
                 print('Exception caught')
                 bt = traceback.format_exception(*sys.exc_info()[:3])
