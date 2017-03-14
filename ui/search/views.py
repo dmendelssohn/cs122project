@@ -107,6 +107,7 @@ class SearchForm(forms.Form):
 
     show_attributes = forms.BooleanField(label='Search by Attributes',
                                          required=False)
+
     query = forms.CharField(
             label='Character Name',
             required=False)
@@ -116,9 +117,11 @@ class SearchForm(forms.Form):
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
                                   required=False)
+
     nodes = forms.IntegerField(label=' Max no. of Edges',
                                 min_value=0,
                                 required=False)
+
     wiki = forms.TypedChoiceField(label='Wiki Information',
                                   coerce=lambda x: x=='True',
                                   choices=((False, 'No'), (True, 'Yes')),
@@ -134,8 +137,8 @@ class SearchForm(forms.Form):
         widget=RANGE_WIDGET,
         required=False)
 
-    show_args = forms.BooleanField(label='Show args_to_ui', #for debugging#
-                                   required=False)#
+    #show_args = forms.BooleanField(label='Show args_to_ui', #for debugging
+    #                               required=False)
     gsm = forms.MultipleChoiceField(label='Gender/Sexual Minority',
                                     choices=GSM,
                                     widget=forms.CheckboxSelectMultiple,
@@ -228,8 +231,8 @@ def home(request):
             gsm = form.cleaned_data['gsm']
             if gsm:
                 args['gsm'] = gsm            
-            if form.cleaned_data['show_args']:
-                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+            #if form.cleaned_data['show_args']:
+            #    context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
             results = find_attributes(args)
 

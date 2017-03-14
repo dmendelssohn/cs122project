@@ -170,7 +170,7 @@ def find_attributes(args_from_ui):
     cursor = connection.cursor()
 
     S = 'SELECT ' + attribute_string + from_clause + where_clause
-    print(S, params)
+    #print(S, params) #for debugging
     query = cursor.execute(S, params)     
 
     result = query.fetchall()
