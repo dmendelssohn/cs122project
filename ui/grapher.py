@@ -6,12 +6,25 @@ G = nx.read_pajek('weighted_hero_network.txt')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def get_color(arg,name):
+    '''
+    Determines the color code for the given node
+    Inputs:
+      arg: (str) 
+      name: (str)
+    Outputs g for green, r for red
+    '''
     if name == arg:
         return 'g'
     else:
         return 'r'
 
 def get_network(arg,conn_num=False):
+    '''
+    Draws the network
+    Inputs:
+      arg: (str) name of the character to draw the network for
+    Outputs tuple with information about the graph
+    '''
     limit = False
     plt.clf()
     arg = arg.upper()

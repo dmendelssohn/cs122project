@@ -8,7 +8,12 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def apicall(name):
-
+    '''
+    Pulls information from the api and creates character image
+    Inputs:
+      name: (str) name provided by user
+    Outputs tuple with description and bool for success of image pull
+    '''
     m = hashlib.md5()
     pub = "a86a6cb4e0255630ae1eae723b451328"
 
