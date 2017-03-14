@@ -7,8 +7,10 @@
 
 Django-driven web client for searching Marvel and DC characters
 
-To run the client,
+To run the client, navigate to ~/cs122project/ui in the command line. Then:
+
     ~/cs122project/ui$ python3 manage.py runserver
+
 and navigate to 127.0.0.1:8000 in a web browser.
 
 Select the universe to search. Selecting "Search by Attribute" and hitting
