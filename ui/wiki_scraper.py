@@ -59,9 +59,6 @@ def scraper(arg):
             first_appearance_list = [th.next_sibling.next_sibling.text]
         if '\n' in first_appearance_list[0]:
             first_appearance_list = th.next_sibling.next_sibling.text.split('\n')
-            for index, app in enumerate(first_appearance_list):
-                if app[-3] == '[':
-                    first_appearance_list[index] = app[:-3]
     info_dict['First appearance'] = first_appearance_list
 
     cr_as = [th.next_sibling.next_sibling.find_all('a') for th in ths \
@@ -81,7 +78,7 @@ def scraper(arg):
     aliases_list = ['No alias information available']
     for th in ths[:20]:
         if th.text == 'Notable aliases':
-            aliases_list = [li.text[:-3] for li in th.next_sibling.next_sibling.find_all('li')]
+            aliases_list = [li.text for li in th.next_sibling.next_sibling.find_all('li')]
         if aliases_list == []:
             aliases_list = th.next_sibling.next_sibling.text.split(', ')
     info_dict['Aliases'] = aliases_list
@@ -97,5 +94,10 @@ def scraper(arg):
     elif soup.find_all('th', text='In-story information') != []:
         alter_ego = [ths[0].text]
     info_dict['Alter ego'] = alter_ego
+
+    for key in info_dict:
+        for index, entry in enumerate(info_dict[key]):
+            if entry[-3] == '[':
+                info_dict[key][index] = info_dict[key][index][:-3]
 
     return info_dict
