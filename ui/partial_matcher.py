@@ -12,7 +12,7 @@ def pieces_in(row, pieces):
     '''
     boolean = True
     for piece in pieces:
-        pb = piece in row
+        pb = piece.lower() in row.lower()
         boolean = pb and boolean
     return boolean
 
@@ -33,10 +33,14 @@ def partial_matcher(name_from_ui, universe):
         df = pd.read_csv('dc_split_names.csv', encoding='latin1')
         new = df['fullname'].apply(lambda row: pieces_in(row, pieces))
 
-    s = set(list(df['hero_name'].ix[new]) + list(df['alias'].ix[new]) + 
-        jaro_matcher(name_from_ui, universe))
+    s = set(list(df['hero_name'].ix[new]) + list(df['alias'].ix[new]))
     s = {x for x in s if x == x}
-
+    s = list(s)
+    if len(s) > 15:
+        s = s[:15]
+    s += jaro_matcher(name_from_ui, universe)
+    s = {x for x in s if x == x}
+    
     return list(s)
 
 def calculate_jaro_winkler(name, name_from_ui):
