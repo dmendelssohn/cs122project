@@ -1,0 +1,200 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CS 122 Heroes Database</title>
+        <link rel="stylesheet" type="text/css" href="{% static "/static/main.css" %}" />
+    </head>
+    <body>
+        <div id="header">
+            <div align="center">
+            <h1>CS 122 Heroes Database</h1>
+        </div>
+ 
+        <div class="frame">
+            <div align="left">
+            <form method="get">
+                {% csrf_token %}
+                <table class="form">
+                <tr>
+                    <td>{{form.universe.label}}:</td>
+                    <td>{{form.universe}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.query.label}}:</td>
+                    <td>{{form.query}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.grapher.label}}:</td>
+                    <td>{{form.grapher}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.nodes.label}}:</td>
+                    <td>{{form.nodes}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.wiki.label}}:</td>
+                    <td>{{form.wiki}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.show_attributes.label}}:</td>
+                    <td>{{form.show_attributes}}</td>
+                </tr>
+                {% if attributes %}
+                <tr>
+                    <td><h2>Attributes</h2></td>
+                </tr>
+                <tr>
+                    <td>{{form.appearance.label}}:</td>
+                    <td>{{form.appearance}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.year.label}}:</td>
+                    <td>{{form.year}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.iden.label}}:</td>
+                    <td>{{form.iden}}</td>
+                    <td>{{form.align.label}}:</td>
+                    <td>{{form.align}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.gsm.label}}:</td>
+                    <td>{{form.gsm}}</td>
+                    <td>{{form.sex.label}}:</td>
+                    <td>{{form.sex}}</td>
+                </tr>
+                <tr>
+                    <td>{{form.eye.label}}:</td>
+                    <td>{{form.eye}}</td>
+                    <td>{{form.hair.label}}:</td>
+                    <td>{{form.hair}}</td>
+                </tr>
+                {% endif%}
+                </table>
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+
+        {% if args %}
+        <div class="args">
+            <pre>{{ args }}</pre>
+        </div>
+        {% endif %}
+
+        {% if desc %}
+        <div class="desc">
+            <h2>{{ desc_title}}</h2>            
+            <pre>{{ desc }}</pre>
+        </div>
+        {% endif %}
+
+        <div class='img'>
+            <table>
+            {% load static %}
+            {% if img %}
+            <tr>
+                <td>
+            <img src="{% static "character.jpg" %}" height=500 width=600/>
+            {% endif %}
+                </td>
+            </tr>
+            </table>
+            {% if grapher %}
+                <h2>Network Information</h2>         
+                <embed src="{% static "network.jpg" %}" height=500 width=600/>{% if grapher_lim %}<embed src="{% static "lim_network.jpg" %}" height=500 width=600/>
+                {% endif %}
+            <table>
+            <tr>
+                <td>(Larger Nodes represent characters with more concurrent appearances)</td>
+            </tr>
+            <tr>
+                <td>Number of characters in unbounded graph:</td>
+                <td>{{grapher_info.2}}</td>
+            </tr>
+            <tr>
+                <td>Characters that appear the most with {{ desc_title }}:</td>
+                {% for char in grapher_info.1 %}
+                <td>({{char}})</td>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+
+        {% if wiki %}
+        <div class = 'wiki'>
+            <h2>Wikipedia Information</h2>
+            <table>
+
+            {% for key, values in wiki.items %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{values.0}}</td>
+            </tr>
+                {% for v in values|slice:"1:" %}
+                <tr>
+                    <td></td>
+                    <td>{{v}}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if err %}
+        <div class="error">
+            {{ err|safe }}
+        </div>
+        {% endif %}
+
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                    </div>  
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div>
+            {% if fuzzymatch %}
+            <h2>Did you mean...</h2>
+            <table> {% for match in fuzzymatch %}
+                <tr>
+                    <td>{{match}}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="frame">
+            {% if result %}
+            <h2>All Possible Matches</h2>
+            <div class="results">
+                <table class="Fields">
+                    <tr>
+                        {% for col in columns %}
+                        <th align='left'>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for entry in result %}
+                    <tr>
+                        {% for col in entry %}
+                        <td align='left'>{{ col }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <p class="num_results">Results: {{ num_results }}</p>
+            {% endif %}
+        </div>
+    </body>
+</html>
