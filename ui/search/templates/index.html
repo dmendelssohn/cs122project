@@ -106,6 +106,8 @@
                 {% endif %}
             <table>
             <tr>
+                <td>(Larger Nodes represent characters with more concurrent appearances)</td>
+                <td></td>
                 <td>Number of characters in unbounded graph:</td>
                 <td>{{grapher_info.2}}</td>
             </tr>
@@ -159,6 +161,17 @@
                 </div>
             {% endfor %}
         {% endif %}
+
+        <div>
+            {% if fuzzymatch %}
+            <h2>Did you mean...</h2>
+            <table> {% for match in fuzzymatch %}
+                <tr>
+                    <td>{{match}}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </div>
 
         <div class="frame">
             {% if result %}

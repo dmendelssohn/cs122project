@@ -19,6 +19,7 @@ from PIL import Image
 from functools import reduce
 from wiki_scraper import scraper
 import grapher
+from partial_matcher import partial_matcher
 
 NOPREF_STR = 'Leave Blank'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
@@ -176,6 +177,7 @@ def home(request):
                 args['universe'] = 1
             else: #marvel
                 args['universe'] = 0
+            hero = ''
             if form.cleaned_data['query']:
                 hero = form.cleaned_data['query']
                 args['name'] = hero #538 CSV Data
@@ -228,8 +230,15 @@ def home(request):
                 args['gsm'] = gsm            
             if form.cleaned_data['show_args']:
                 context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+
+            results = find_attributes(args)
+
+            if results == ([],[]):
+                if hero != '':
+                    fuzzymatch = partial_matcher(hero, args['universe'])
+                    context['fuzzymatch'] = fuzzymatch
             try:
-                res = find_attributes(args)
+                res = results
             except Exception as e:
                 print('Exception caught')
                 bt = traceback.format_exception(*sys.exc_info()[:3])
