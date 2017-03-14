@@ -8,8 +8,8 @@
 Django-driven web client for searching Marvel and DC characters
 
 To run the client,
-    ~/cs122project/ui$python3 manage.py runserver
-and navigate to 127.0.0.1:8000.
+    ~/cs122project/ui$ python3 manage.py runserver
+and navigate to 127.0.0.1:8000 in a web browser.
 
 Select the universe to search. Selecting "Search by Attribute" and hitting
 Submit allows for the selection of other search options.
@@ -21,4 +21,7 @@ characters to the x number of characters with the most co-appearances. Be
 aware that characters with large numbers of connections may take up to 30
 seconds to produce.
 
-The Aggregation folder contains the produced code in more organized chunks to facilitate grading. Note that running programs in the Aggregation/used folder, while the same files as in the /ui/ folder, will not run because they rely on code in the other folders.
+The Aggregation folder contains the produced code in more organized chunks to 
+facilitate grading. Note that running programs in the Aggregation/used folder,
+while the same files as in the /ui/ folder, will not run because they rely on
+code in the other folders.
